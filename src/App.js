@@ -3,9 +3,8 @@ import CreatePlaylist from "./components/Playlist/CreatePlaylist";
 import ShowPlaylists from "./components/Playlist/ShowPlaylists";
 import { Route, Routes } from "react-router-dom";
 import EditPlaylist from "./components/Playlist/EditPlaylist";
-import Playlist from "./components/Playlist/Playlist";
 import Header from "./components/Common/Header";
-import Home from "./components/Layout/Home";
+
 function App() {
   return (
     <div className="App">
