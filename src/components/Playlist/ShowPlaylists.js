@@ -1,10 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import Loader from "../Common/Loader";
+import { Link } from "react-router-dom";
 
 const ShowPlaylist = () => {
   const showPlaylist = "http://localhost:8080/playlist-api/playlists";
+  const deletePlaylist = "http://localhost:8080/playlist-api/playlist";
 
   const [playlist, setPlaylists] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -14,13 +17,16 @@ const ShowPlaylist = () => {
     console.log("id : -", id);
     setIsLoading(true);
     try {
-      const response = await fetch(showPlaylist.concat("/") + id, {
+      const response = await fetch(deletePlaylist.concat("/") + id, {
         method: "DELETE",
       });
       if (!response.ok) {
         throw new Error("Nao foi possivel deletar a playlist");
       }
-      setPlaylists(playlist.filter((item) => item.id !== id));
+      let playRemoved = { playlists: playlist.playlists.filter((item) => item.id !== id)}
+      console.log(playRemoved)
+      console.log(playlist)
+      setPlaylists(playRemoved);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -33,8 +39,13 @@ const ShowPlaylist = () => {
   }, []);
 
   const getPlaylists = () => {
+    const headers = {
+      'Content-Type':'application/json;charset=utf-8',
+      'Access-Control-Allow-Origin':'*'
+    }
+
     axios
-      .get(showPlaylist)
+      .get(showPlaylist, null, { headers: headers})
       .then((res) => {
         setPlaylists(res.data);
       })
@@ -55,27 +66,26 @@ const ShowPlaylist = () => {
             <tr>
               <th>ID</th>
               <th>Name</th>
-            </tr>
+              <th>Action</th>
+          </tr>
           </thead>
           <tbody>
-            {playlist?.map((item, i) => {
-              return (
+            {playlist.playlists?.map((play, i) => {
+              return(
                 <tr key={i + 1}>
-                  <td>{i + 1}</td>
-                  <td>{item.name}</td>
+                  <td>{play.id}</td>
+                  <td>{play.name}</td>
                   <td>
-                    <Link to={`/edit-playlist/${item.id}`}>
-                      <i className="fa fa-pencil" aria-hidden="true"></i>
+                    <Link to={`/edit-playlist/${play.id}`}>
+                      <i className="fa fa-pencil" 
+                        aria-hidden="true"
+                      >editar</i>
                     </Link>
-                    <Link to={`/playlist/${item.id}`}>
-                      <i className="fa fa-eye" aria-hidden="true"></i>
-                    </Link>
-
                     <i
-                      className="fa fa-trash-o"
-                      aria-hidden="true"
-                      onClick={() => handelDelete(item.id)}
-                    ></i>
+                        className="fa fa-trash-o"
+                        aria-hidden="true"
+                        onClick={() => handelDelete(play.id)}
+                      >deletar</i>
                   </td>
                 </tr>
               );

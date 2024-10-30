@@ -10,17 +10,26 @@ const EditPlaylist = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
-  const getPlaylistApi = "http://localhost:8080/playlist-api/";
+  const getPlaylistApi = "http://localhost:8080/playlist-api/playlist";
 
   useEffect(() => {
     getPlaylist();
   }, []);
 
   const getPlaylist = () => {
+    const headers = {
+      'Content-Type':'application/json;charset=utf-8',
+      'Access-Control-Allow-Origin':'*'
+    }
+
     axios
-      .get(getPlaylistApi.concat("/") + id)
+      .get(getPlaylistApi.concat("/") + id, null, {headers: headers})
       .then((item) => {
-        setPlaylist(item.data);
+        let playlistParseded = {
+          id: Number.parseInt(item.data.playlists[0].id),
+          name: item.data.playlists[0].name
+        }
+        setPlaylist(playlistParseded);
       })
       .catch((err) => {
         console.log(err);
@@ -29,20 +38,24 @@ const EditPlaylist = () => {
 
   const handelInput = (e) => {
     e.preventDefault();
-    const { id, name } = e.target;
-    console.log(name, id);
-    setPlaylist({ ...playlist, [id]: name });
+    const { name, value } = e.target;
+    console.log(name, value);
+    setPlaylist({ ...playlist, [name]: value });
   };
 
   const handelSubmit = (e) => {
+    setIsLoading(true);
     e.preventDefault();
-
+    let playParseded = {
+        id: Number.parseInt(id),
+        name: playlist.name
+    }
     fetch(getPlaylistApi.concat("/") + id, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(playlist),
+      body: JSON.stringify(playParseded),
     })
       .then((response) => {
         if (!response.ok) {
@@ -51,8 +64,8 @@ const EditPlaylist = () => {
         return response.json();
       })
       .then((data) => {
-        setIsLoading(true);
-        navigate("/show-playlist");
+        setPlaylist({id:0, name: ""})
+        navigate('/show-playlist');
       })
       .catch((error) => {
         setError(error.message);
@@ -68,19 +81,6 @@ const EditPlaylist = () => {
         <p>Editar</p>
       </div>
       <form onSubmit={handelSubmit}>
-        <div className="mb-2">
-          <label for="id" className="form-label">
-            Id
-          </label>
-          <input
-            type="number"
-            className="form-control"
-            id="id"
-            name="id"
-            value={playlist.id}
-            onChange={handelInput}
-          />
-        </div>
         <div className="mb-2 mt-2">
           <label for="name" className="form-label">
             Name

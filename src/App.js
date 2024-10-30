@@ -14,9 +14,8 @@ function App() {
           <Header />
           <Routes>
           
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<ShowPlaylists />} />
             <Route path="/edit-playlist/:id" element={< EditPlaylist />} />
-            <Route path="/playlist/:id" element={<Playlist />} />
             <Route path="/create-playlist" element={<CreatePlaylist />} />
             <Route path="/show-playlist" element={<ShowPlaylists />} />
           </Routes>
